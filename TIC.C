@@ -41,7 +41,7 @@ void* MB_Lex(char* S) {
     while(S[Idx] == ' ' || S[Idx] == '\t') {
         Idx++;
     }
-    memmove(S, S+Idx, (Len-Idx) * sizeof(char));
+    memmove(S, S+Idx, Len*sizeof(char));
     
     if(strncmp(S, "LET", 3) == 0) { T->Instruction = LET; SkipIdx = 3; }
      else if(strncmp(S, "IF", 2) == 0) { T->Instruction = IF; }
@@ -59,7 +59,7 @@ void* MB_Lex(char* S) {
     else if(strncmp(S, "MUL", 3) == 0) { T->Instruction = MUL; SkipIdx = 3; }
     else if(strncmp(S, "DIV", 3) == 0) { T->Instruction = DIV; SkipIdx = 3; }
     else if(strncmp(S, "EQUAL", 5) == 0) { T->Instruction = EQUAL; SkipIdx = 5; }
-    else if(strncmp(S, "MORE", 5) == 0) { T->Instruction = MORE; SkipIdx = 5; }
+    else if(strncmp(S, "MORE", 4) == 0) { T->Instruction = MORE; SkipIdx = 4; }
     else if(strncmp(S, "LESS", 4) == 0) { T->Instruction = LESS; SkipIdx = 4; }
     else if(strncmp(S, "AND", 3) == 0) { T->Instruction = AND; }
     else if(strncmp(S, "OR", 2) == 0) { T->Instruction = OR; }
@@ -120,7 +120,7 @@ int MB_Eval(struct MB_Env* E, int Idx) {
         E->TokV[Idx]->Instruction == MUL ||
         E->TokV[Idx]->Instruction == DIV) {
         if(Int0[1] == -1) {
-            MB_ERROR("Value assignment to a number literal or unknown"); 
+            MB_ERROR("Value assignment to unknown"); 
         }
     }
     
@@ -132,7 +132,7 @@ int MB_Eval(struct MB_Env* E, int Idx) {
             if(Condition == AND || Condition == OR || Condition == NOT) { Condition = MB_Eval(E, Idx-2); }
             else { Condition = MB_Eval(E, Idx-1); }
             
-            if(Condition == -1) { MB_ERROR("No condition for IF instruction"); }
+            if(Condition == -1) { MB_ERROR("No condition for instruction"); }
             if(!Condition) { E->TokIndex = Var1; }
             break;
         }
@@ -141,18 +141,18 @@ int MB_Eval(struct MB_Env* E, int Idx) {
             if(Condition == AND || Condition == OR || Condition == NOT) { Condition = MB_Eval(E, Idx-2); }
             else { Condition = MB_Eval(E, Idx-1); }
             
-            if(Condition == -1) { MB_ERROR("No condition for WHILE instruction"); }
+            if(Condition == -1) { MB_ERROR("No condition for instruction"); }
             if(!Condition) { E->TokIndex = Var1; }
             break;
         }
         case LOOP: E->TokIndex = Var1-1; break;
         case GOTO: E->TokIndex = Var1-1; break;
-        case EXIT: printf("Program stopped with code %d", Var0); exit(0);
+        case EXIT: printf("Program exited with code %d", Var0); exit(0);
         case PRINT: printf("OUT: %d\n", Var0); break;
         case SCAN:
             printf("IN: ");
             if(scanf("%d", &E->Var[Int0[0]][Int0[1]]) != 1) {
-                MB_ERROR("SCAN was not a number");
+                MB_ERROR("Value assignment to unknown");
             }
             break;
         case ADD: E->Var[Int0[0]][Int0[1]] = Var0 + Var1; break;
