@@ -49,9 +49,9 @@ void* MB_Lex(char* S) {
     else if(strncmp(S, "WHILE", 5) == 0) { T->Instruction = WHILE; }
     else if(strncmp(S, "LOOP", 4) == 0) { T->Instruction = LOOP; }
     else if(strncmp(S, "GOTO", 4) == 0) { T->Instruction = GOTO; SkipIdx = 4; }
-    else if(strncmp(S, "POS", 4) == 0) { T->Instruction = POS; SkipIdx = 4; }
+    else if(strncmp(S, "POS", 3) == 0) { T->Instruction = POS; SkipIdx = 3; }
     else if(strncmp(S, "PRINT", 5) == 0) { T->Instruction = PRINT; SkipIdx = 5; }
-    else if(strncmp(S, "SCAN", 5) == 0) { T->Instruction = SCAN; SkipIdx = 5; }
+    else if(strncmp(S, "SCAN", 4) == 0) { T->Instruction = SCAN; SkipIdx = 4; }
     else if(strncmp(S, "EXIT", 4) == 0) { T->Instruction = EXIT; SkipIdx = 4; }
     else if(strncmp(S, "REM", 3) == 0) { T->Instruction = REM; }
     else if(strncmp(S, "ADD", 3) == 0) { T->Instruction = ADD; SkipIdx = 3; }
