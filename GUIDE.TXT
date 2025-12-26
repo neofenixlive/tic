@@ -1,0 +1,62 @@
+/*/---------------/*/
+
+         TIC
+Tiny Interpreted Code
+
+/*/---------------/*/
+
+A BASIC inspired scripting language written in C89
+
+
+
+
+Syntax:
+"COM VAL0 VAL1"
+
+COM: Command
+VAL0: Number or variable
+VAL1: Number or variable
+
+Numbers are capped to integer limit, -32k to 32k,
+variables are defined by a letter and a number,
+totalling to 260 variables.
+
+
+"COM0
+COM1
+...
+COM2"
+
+COM0: Condition
+COM1: Statement start
+COM2: Statement end
+
+If condition is true, the code inside statement
+will be executed, a condition can have AND/OR/NOT,
+but cannot stack any of those
+
+
+
+
+Library:
+LET: Assigns value 1 to value 0
+ADD: Adds value 1 to value 0
+SUB: Subtracts value 1 from value 0
+MUL: Multiplies value 0 by value 1
+DIV: Divides value 0 by value 1
+
+PRINT: Outputs value 0
+SCAN: Waits for input, which is assigned to value 0
+EXIT: Stops program, sending value 0 as code
+REM: Remark, a commentary ignored by code
+
+IF/END: Statement that runs once when true
+WHILE/LOOP: Statement that runs always when true
+GOTO/POS: When GOTO is called, execution goes to POS with same value 0
+
+EQUAL: Returns true if both values are the same
+MORE: Returns true if value 0 is bigger than value 1
+LESS: Return true if value 0 is smaller than value 1
+AND: Placed in between two statements, returns true if both are true
+OR: Placed in between two statements, returns true if one is true
+NOT: Placed before a statement, returns true if statement is false
