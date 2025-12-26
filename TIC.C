@@ -18,7 +18,7 @@ struct MB_Tok {
 struct MB_Env {
     struct MB_Tok** TokV;
     int TokC;
-    int TokIndex;    
+    int TokI;    
     int Var[26][10];
 };
 
@@ -44,7 +44,7 @@ void* MB_Lex(char* S) {
     memmove(S, S+Idx, Len*sizeof(char));
     
     if(strncmp(S, "LET", 3) == 0) { T->Instruction = LET; SkipIdx = 3; }
-     else if(strncmp(S, "IF", 2) == 0) { T->Instruction = IF; }
+    else if(strncmp(S, "IF", 2) == 0) { T->Instruction = IF; }
     else if(strncmp(S, "END", 3) == 0) { T->Instruction = END; }
     else if(strncmp(S, "WHILE", 5) == 0) { T->Instruction = WHILE; }
     else if(strncmp(S, "LOOP", 4) == 0) { T->Instruction = LOOP; }
@@ -133,7 +133,7 @@ int MB_Eval(struct MB_Env* E, int Idx) {
             else { Condition = MB_Eval(E, Idx-1); }
             
             if(Condition == -1) { MB_ERROR("No condition for instruction"); }
-            if(!Condition) { E->TokIndex = Var1; }
+            if(!Condition) { E->TokI = Var1; }
             break;
         }
         case WHILE: {
@@ -142,19 +142,14 @@ int MB_Eval(struct MB_Env* E, int Idx) {
             else { Condition = MB_Eval(E, Idx-1); }
             
             if(Condition == -1) { MB_ERROR("No condition for instruction"); }
-            if(!Condition) { E->TokIndex = Var1; }
+            if(!Condition) { E->TokI = Var1; }
             break;
         }
-        case LOOP: E->TokIndex = Var1-1; break;
-        case GOTO: E->TokIndex = Var1-1; break;
+        case LOOP: E->TokI = Var1-1; break;
+        case GOTO: E->TokI = Var1-1; break;
         case EXIT: printf("Program exited with code %d", Var0); exit(0);
         case PRINT: printf("OUT: %d\n", Var0); break;
-        case SCAN:
-            printf("IN: ");
-            if(scanf("%d", &E->Var[Int0[0]][Int0[1]]) != 1) {
-                MB_ERROR("Value assignment to unknown");
-            }
-            break;
+        case SCAN: printf("IN: "); scanf("%d", &E->Var[Int0[0]][Int0[1]]); break;
         case ADD: E->Var[Int0[0]][Int0[1]] = Var0 + Var1; break;
         case SUB: E->Var[Int0[0]][Int0[1]] = Var0 - Var1; break;
         case MUL: E->Var[Int0[0]][Int0[1]] = Var0 * Var1; break;
@@ -180,7 +175,7 @@ void* MB_New(char* S) {
     
     E->TokV = NULL;
     E->TokC = 0;
-    E->TokIndex = 0;
+    E->TokI = 0;
     
     for(Idx = 0; Idx < 26; Idx++) {
         for(SubIdx = 0; SubIdx < 10; SubIdx++) {
@@ -198,39 +193,44 @@ void* MB_New(char* S) {
     }
     
     for(Idx = 0; Idx < E->TokC; Idx++) {
-        if(E->TokV[Idx]->Instruction == IF) {
-            SubIdx = Idx;
-            while(SubIdx < E->TokC) {
-                if(E->TokV[SubIdx]->Instruction == END) {
-                    E->TokV[Idx]->Int1[0] = SubIdx;
-                    break;
+        switch(E->TokV[Idx]->Instruction) {
+            case IF: {
+                SubIdx = Idx;
+                while(SubIdx < E->TokC) {
+                    if(E->TokV[SubIdx]->Instruction == END) {
+                        E->TokV[Idx]->Int1[0] = SubIdx;
+                        break;
+                    }
+                    SubIdx++;
                 }
-                SubIdx++;
+                if(E->TokV[Idx]->Int1[0] == 0) { MB_ERROR("No END for IF instruction"); }
+                break;
             }
-            if(E->TokV[Idx]->Int1[0] == 0) { MB_ERROR("No END for IF instruction"); }
-        }
-        if(E->TokV[Idx]->Instruction == WHILE) {
-            SubIdx = Idx;
-            while(SubIdx < E->TokC) {
-                if(E->TokV[SubIdx]->Instruction == LOOP) {
-                    E->TokV[Idx]->Int1[0] = SubIdx;
-                    E->TokV[SubIdx]->Int1[0] = Idx;
-                    break;
+            case WHILE: {
+                SubIdx = Idx;
+                while(SubIdx < E->TokC) {
+                    if(E->TokV[SubIdx]->Instruction == LOOP) {
+                        E->TokV[Idx]->Int1[0] = SubIdx;
+                        E->TokV[SubIdx]->Int1[0] = Idx;
+                        break;
+                    }
+                    SubIdx++;
                 }
-                SubIdx++;
+                if(E->TokV[Idx]->Int1[0] == 0) { MB_ERROR("No LOOP for WHILE instruction"); }
+                break;
             }
-            if(E->TokV[Idx]->Int1[0] == 0) { MB_ERROR("No LOOP for WHILE instruction"); }
-        }
-        if(E->TokV[Idx]->Instruction == GOTO) {
-            SubIdx = 0;
-            while(SubIdx < E->TokC) {
-                if(E->TokV[SubIdx]->Instruction == POS && E->TokV[Idx]->Int0[0] == E->TokV[SubIdx]->Int0[0]) {
-                    E->TokV[Idx]->Int1[0] = SubIdx;
-                    break;
+            case GOTO: {
+                SubIdx = 0;
+                while(SubIdx < E->TokC) {
+                    if(E->TokV[SubIdx]->Instruction == POS && E->TokV[Idx]->Int0[0] == E->TokV[SubIdx]->Int0[0]) {
+                        E->TokV[Idx]->Int1[0] = SubIdx;
+                        break;
+                    }
+                    SubIdx++;
                 }
-                SubIdx++;
+                if(E->TokV[Idx]->Int1[0] == 0) { MB_ERROR("No POS for GOTO instruction"); }
+                break;
             }
-            if(E->TokV[Idx]->Int1[0] == 0) { MB_ERROR("No POS for GOTO instruction"); }
         }
     }
     
@@ -240,8 +240,8 @@ void* MB_New(char* S) {
 }
 
 void MB_Run(struct MB_Env* E) {
-    for(E->TokIndex = 0; E->TokIndex < E->TokC; E->TokIndex++) {
-        MB_Eval(E, E->TokIndex);
+    for(E->TokI = 0; E->TokI < E->TokC; E->TokI++) {
+        MB_Eval(E, E->TokI);
     }
 }
 
