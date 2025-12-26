@@ -1,0 +1,17 @@
+LET A0 0
+LET A1 0
+LET B0 0
+
+SCAN A0
+SCAN B0
+LET A1 A0
+
+MORE B0 1
+WHILE
+  MUL A1 A0
+  SUB B0 1
+LOOP
+PRINT A1
+
+REM this program returns the power
+REM of the first value by the second value

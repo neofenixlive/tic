@@ -1,1 +1,19 @@
+LET A0 0
+LET A1 1
+LET A2 0
+LET B0 0
 
+SCAN B0
+
+MORE B0 0
+WHILE
+  LET A2 A1
+  ADD A1 A0
+  LET A0 A2
+
+  PRINT A1
+  SUB B0 1
+LOOP
+
+REM this program shows the fibonacci
+REM sequence until the value given

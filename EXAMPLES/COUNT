@@ -1,0 +1,13 @@
+LET A0 0
+LET B0 0
+
+SCAN A0
+
+LESS B0 A0
+WHILE
+  ADD B0 1
+  PRINT B0
+LOOP
+
+REM this program loops from
+REM one to the value given
