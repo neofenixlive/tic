@@ -40,6 +40,7 @@ void* MB_Lex(char* S) {
     Idx = 0;
     while(S[Idx] == ' ' || S[Idx] == '\t') {
         Idx++;
+        Len--;
     }
     memmove(S, S+Idx, Len*sizeof(char));
     
